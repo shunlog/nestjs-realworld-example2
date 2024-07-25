@@ -21,14 +21,14 @@ export class ProfileService {
   }
 
   async findOne(options?: DeepPartial<UserEntity>): Promise<ProfileRO> {
-    const user = await this.userRepository.findOne(options);
+    const user = await this.userRepository.preload(options);
     delete user.id;
     if (user) delete user.password;
     return {profile: user};
   }
 
   async findProfile(id: number, followingUsername: string): Promise<ProfileRO> {
-    const _profile = await this.userRepository.findOne( {username: followingUsername});
+    const _profile = await this.userRepository.findOneBy( {username: followingUsername});
 
     if(!_profile) return;
 
@@ -38,7 +38,7 @@ export class ProfileService {
       image: _profile.image
     };
 
-    const follows = await this.followsRepository.findOne( {followerId: id, followingId: _profile.id});
+    const follows = await this.followsRepository.findOneBy( {followerId: id, followingId: _profile.id});
 
     if (id) {
       profile.following = !!follows;
@@ -52,14 +52,14 @@ export class ProfileService {
       throw new HttpException('Follower email and username not provided.', HttpStatus.BAD_REQUEST);
     }
 
-    const followingUser = await this.userRepository.findOne({username});
-    const followerUser = await this.userRepository.findOne({email: followerEmail});
+    const followingUser = await this.userRepository.findOneBy({username});
+    const followerUser = await this.userRepository.findOneBy({email: followerEmail});
 
     if (followingUser.email === followerEmail) {
       throw new HttpException('FollowerEmail and FollowingId cannot be equal.', HttpStatus.BAD_REQUEST);
     }
 
-    const _follows = await this.followsRepository.findOne( {followerId: followerUser.id, followingId: followingUser.id});
+    const _follows = await this.followsRepository.findOneBy( {followerId: followerUser.id, followingId: followingUser.id});
 
     if (!_follows) {
       const follows = new FollowsEntity();
@@ -83,7 +83,7 @@ export class ProfileService {
       throw new HttpException('FollowerId and username not provided.', HttpStatus.BAD_REQUEST);
     }
 
-    const followingUser = await this.userRepository.findOne({username});
+    const followingUser = await this.userRepository.findOneBy({username});
 
     if (followingUser.id === followerId) {
       throw new HttpException('FollowerId and FollowingId cannot be equal.', HttpStatus.BAD_REQUEST);

@@ -23,7 +23,7 @@ export class UserService {
   }
 
   async findOne({email, password}: LoginUserDto): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({email});
+    const user = await this.userRepository.findOneBy({email});
     if (!user) {
       return null;
     }
@@ -72,7 +72,7 @@ export class UserService {
   }
 
   async update(id: number, dto: UpdateUserDto): Promise<UserEntity> {
-    let toUpdate = await this.userRepository.findOne(id);
+    let toUpdate = await this.userRepository.findOneBy({id: id});
     delete toUpdate.password;
     delete toUpdate.favorites;
 
@@ -85,7 +85,7 @@ export class UserService {
   }
 
   async findById(id: number): Promise<UserRO>{
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOneBy({id: id});
 
     if (!user) {
       const errors = {User: ' not found'};
@@ -96,7 +96,7 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<UserRO>{
-    const user = await this.userRepository.findOne({email: email});
+    const user = await this.userRepository.findOneBy({email: email});
     return this.buildUserRO(user);
   }
 
