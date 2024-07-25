@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getRepository, DeleteResult } from 'typeorm';
+import { Repository, DeleteResult } from 'typeorm';
 import { ArticleEntity } from './article.entity';
 import { Comment } from './comment.entity';
 import { UserEntity } from '../user/user.entity';
@@ -26,7 +26,7 @@ export class ArticleService {
 
   async findAll(query): Promise<ArticlesRO> {
 
-    const qb = await getRepository(ArticleEntity)
+    const qb = await this.articleRepository
       .createQueryBuilder('article')
       .leftJoinAndSelect('article.author', 'author');
 
@@ -73,7 +73,7 @@ export class ArticleService {
 
     const ids = _follows.map(el => el.followingId);
 
-    const qb = await getRepository(ArticleEntity)
+    const qb = await this.articleRepository
       .createQueryBuilder('article')
       .where('article.authorId IN (:ids)', { ids });
 

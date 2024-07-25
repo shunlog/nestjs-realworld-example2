@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getRepository, DeleteResult } from 'typeorm';
+import { Repository, DeleteResult } from 'typeorm';
 import { UserEntity } from './user.entity';
 import {CreateUserDto, LoginUserDto, UpdateUserDto} from './dto';
 import * as jwt from 'jsonwebtoken';
@@ -39,7 +39,7 @@ export class UserService {
 
     // check uniqueness of username/email
     const {username, email, password} = dto;
-    const qb = await getRepository(UserEntity)
+    const qb = await this.userRepository
       .createQueryBuilder('user')
       .where('user.username = :username', { username })
       .orWhere('user.email = :email', { email });
@@ -61,8 +61,7 @@ export class UserService {
 
     const errors = await validate(newUser);
     if (errors.length > 0) {
-      const _errors = {username: 'Userinput is not valid.'};
-      throw new HttpException({message: 'Input data validation failed', _errors}, HttpStatus.BAD_REQUEST);
+      throw new HttpException({message: 'Input data validation failed', errors}, HttpStatus.BAD_REQUEST);
 
     } else {
       const savedUser = await this.userRepository.save(newUser);
