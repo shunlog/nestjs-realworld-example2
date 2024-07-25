@@ -6,9 +6,10 @@ import { Comment } from './comment.entity';
 import { UserEntity } from '../user/user.entity';
 import { FollowsEntity } from '../profile/follows.entity';
 import { CreateArticleDto } from './dto';
+import slug from "slug";
 
 import {ArticleRO, ArticlesRO, CommentsRO} from './article.interface';
-const slug = require('slug');
+
 
 @Injectable()
 export class ArticleService {
