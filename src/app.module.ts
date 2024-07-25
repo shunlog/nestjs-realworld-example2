@@ -9,7 +9,16 @@ import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(),
+    TypeOrmModule.forRoot({
+      "type": "mysql",
+      "host": "localhost",
+      "port": 3306,
+      "username": "root",
+      "password": "root",
+      "database": "nestjsrealworld",
+      "autoLoadEntities": true,
+      "synchronize": true
+    }),
     ArticleModule,
     UserModule,
     ProfileModule,
