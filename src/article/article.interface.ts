@@ -29,4 +29,3 @@ export interface ArticlesRO {
   articles: ArticleEntity[];
   articlesCount: number;
 }
-

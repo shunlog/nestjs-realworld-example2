@@ -2,6 +2,7 @@ import {Get, Post, Body, Put, Delete, Query, Param, Controller} from '@nestjs/co
 import { Request } from 'express';
 import { ArticleService } from './article.service';
 import { CreateArticleDto, CreateCommentDto } from './dto';
+import {ArticlesDto} from './dto/articles.dto';
 import { ArticlesRO, ArticleRO } from './article.interface';
 import { CommentsRO } from './article.interface';
 import { User } from '../user/user.decorator';
@@ -9,6 +10,7 @@ import { User } from '../user/user.decorator';
 import {
   ApiBearerAuth,
   ApiResponse,
+  ApiOkResponse,
   ApiOperation, ApiTags,
 } from '@nestjs/swagger';
 
@@ -19,8 +21,13 @@ export class ArticleController {
 
   constructor(private readonly articleService: ArticleService) {}
 
+  
   @ApiOperation({ summary: 'Get all articles' })
-  @ApiResponse({ status: 200, description: 'Return all articles.'})
+  @ApiOkResponse({
+    description: 'Return all articles.',
+    type: ArticlesDto,
+    isArray: true
+  })
   @Get()
   async findAll(@Query() query): Promise<ArticlesRO> {
     return await this.articleService.findAll(query);

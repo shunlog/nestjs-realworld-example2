@@ -6,7 +6,8 @@ import { Comment } from './comment.entity';
 import { UserEntity } from '../user/user.entity';
 import { FollowsEntity } from '../profile/follows.entity';
 import { CreateArticleDto } from './dto';
-import slug from "slug";
+import {ArticlesDto} from './dto/articles.dto';
+import * as slug from "slug";
 
 import {ArticleRO, ArticlesRO, CommentsRO} from './article.interface';
 
@@ -24,7 +25,7 @@ export class ArticleService {
     private readonly followsRepository: Repository<FollowsEntity>
   ) {}
 
-  async findAll(query): Promise<ArticlesRO> {
+  async findAll(query): Promise<ArticlesDto> {
 
     const qb = await this.articleRepository
       .createQueryBuilder('article')
