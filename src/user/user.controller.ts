@@ -1,4 +1,4 @@
-import { Get, Post, Body, Put, Delete, Param, Controller, UsePipes } from '@nestjs/common';
+import { Get, Post, Body, Put, Delete, Param, Controller, UsePipes, HttpStatus } from '@nestjs/common';
 import { Request } from 'express';
 import { UserService } from './user.service';
 import { UserRO } from './user.interface';
@@ -44,8 +44,7 @@ export class UserController {
   async login(@Body() loginUserDto: LoginUserDto): Promise<UserRO> {
     const _user = await this.userService.findOne(loginUserDto);
 
-    const errors = {User: ' not found'};
-    if (!_user) throw new HttpException({errors}, 401);
+    if (!_user) throw new HttpException("Login credentials invalid", HttpStatus.UNAUTHORIZED);
 
     const token = await this.userService.generateJWT(_user);
     const {email, username, bio, image} = _user;

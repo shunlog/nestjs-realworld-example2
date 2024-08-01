@@ -13,6 +13,7 @@ import {
   ApiOkResponse,
   ApiOperation, ApiTags,
 } from '@nestjs/swagger';
+import { ArticleEntity } from './article.entity';
 
 @ApiBearerAuth()
 @ApiTags('articles')
@@ -25,8 +26,7 @@ export class ArticleController {
   @ApiOperation({ summary: 'Get all articles' })
   @ApiOkResponse({
     description: 'Return all articles.',
-    type: ArticlesDto,
-    isArray: true
+    type: ArticlesDto
   })
   @Get()
   async findAll(@Query() query): Promise<ArticlesRO> {
@@ -53,7 +53,10 @@ export class ArticleController {
   }
 
   @ApiOperation({ summary: 'Create article' })
-  @ApiResponse({ status: 201, description: 'The article has been successfully created.'})
+  @ApiOkResponse({
+    type: ArticleEntity,
+    description: 'The article has been successfully created.'
+  })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Post()
   async create(@User('id') userId: number, @Body() articleData: CreateArticleDto) {
