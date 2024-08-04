@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeleteResult } from 'typeorm';
 import { UserEntity } from './user.entity';
-import {CreateUserDto, LoginUserDto, UpdateUserDto} from './dto';
+import {UpdateUserDto} from './dto';
 import * as jwt from 'jsonwebtoken';
 import { SECRET } from '../config';
 import { UserRO } from './user.interface';
@@ -10,6 +10,7 @@ import { validate } from 'class-validator';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
 import * as argon2 from 'argon2';
+import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -22,53 +23,15 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  async findOne({email, password}: LoginUserDto): Promise<UserEntity> {
+  async findOne(email: string): Promise<UserEntity> {
     const user = await this.userRepository.findOneBy({email});
     if (!user) {
       return null;
     }
 
-    if (await argon2.verify(user.password, password)) {
-      return user;
-    }
-
-    return null;
+    return user;
   }
 
-  async create(dto: CreateUserDto): Promise<UserRO> {
-
-    // check uniqueness of username/email
-    const {username, email, password} = dto;
-    const qb = await this.userRepository
-      .createQueryBuilder('user')
-      .where('user.username = :username', { username })
-      .orWhere('user.email = :email', { email });
-
-    const user = await qb.getOne();
-
-    if (user) {
-      const errors = {username: 'Username and email must be unique.'};
-      throw new HttpException({message: 'Input data validation failed', errors}, HttpStatus.BAD_REQUEST);
-
-    }
-
-    // create new user
-    let newUser = new UserEntity();
-    newUser.username = username;
-    newUser.email = email;
-    newUser.password = password;
-    newUser.articles = [];
-
-    const errors = await validate(newUser);
-    if (errors.length > 0) {
-      throw new HttpException({message: 'Input data validation failed', errors}, HttpStatus.BAD_REQUEST);
-
-    } else {
-      const savedUser = await this.userRepository.save(newUser);
-      return this.buildUserRO(savedUser);
-    }
-
-  }
 
   async update(id: number, dto: UpdateUserDto): Promise<UserEntity> {
     let toUpdate = await this.userRepository.findOneBy({id: id});
@@ -96,9 +59,39 @@ export class UserService {
 
   async findByEmail(email: string): Promise<UserRO>{
     const user = await this.userRepository.findOneBy({email: email});
+    if (!user) {
+      return null;
+    }
     return this.buildUserRO(user);
   }
 
+
+  public async create(dto: CreateUserDto){
+    const {username, email, password} = dto;
+
+    const user = await this.findByEmail(email);
+    if (user) {
+      throw new HttpException({message: "Email already exists"}, HttpStatus.BAD_REQUEST);
+    }
+
+    // create new user
+    let newUser = new UserEntity();
+    newUser.username = username;
+    newUser.email = email;
+    newUser.password = password;
+    newUser.articles = [];
+
+    const errors = await validate(newUser);
+    if (errors.length > 0) {
+      throw new HttpException({message: 'Input data validation failed', errors}, HttpStatus.BAD_REQUEST);
+
+    } else {
+      const savedUser = await this.userRepository.save(newUser);
+      return this.buildUserRO(savedUser);
+    }
+  }
+  
+  
   public generateJWT(user) {
     let today = new Date();
     let exp = new Date(today);
@@ -112,7 +105,7 @@ export class UserService {
     }, SECRET);
   };
 
-  private buildUserRO(user: UserEntity) {
+ public buildUserRO(user: UserEntity) {
     const userRO = {
       id: user.id,
       username: user.username,
@@ -121,7 +114,6 @@ export class UserService {
       token: this.generateJWT(user),
       image: user.image
     };
-
     return {user: userRO};
   }
 }
