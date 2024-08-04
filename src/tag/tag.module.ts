@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module, NestModule, RequestMethod} from '@nestjs/common';
+import {Module, NestModule, RequestMethod} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { TagService } from './tag.service';
@@ -13,7 +13,6 @@ import { TagController } from './tag.controller';
   ],
   exports: []
 })
-export class TagModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer) {
-  }
+export class TagModule {
+
 }

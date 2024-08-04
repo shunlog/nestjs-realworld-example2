@@ -1,4 +1,4 @@
-import {Get, Post, Body, Put, Delete, Query, Param, Controller} from '@nestjs/common';
+import {Get, Post, Body, Put, Delete, Query, Param, Controller, UseGuards} from '@nestjs/common';
 import { Request } from 'express';
 import { ArticleService } from './article.service';
 import { CreateArticleDto, CreateCommentDto } from './dto';
@@ -14,6 +14,7 @@ import {
   ApiOperation, ApiTags,
 } from '@nestjs/swagger';
 import { ArticleEntity } from './article.entity';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @ApiBearerAuth()
 @ApiTags('articles')
@@ -34,6 +35,7 @@ export class ArticleController {
   }
 
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Get article feed' })
   @ApiResponse({ status: 200, description: 'Return article feed.'})
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -52,6 +54,7 @@ export class ArticleController {
     return await this.articleService.findComments(slug);
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Create article' })
   @ApiOkResponse({
     type: ArticleEntity,
@@ -63,6 +66,7 @@ export class ArticleController {
     return this.articleService.create(userId, articleData);
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update article' })
   @ApiResponse({ status: 201, description: 'The article has been successfully updated.'})
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -72,6 +76,7 @@ export class ArticleController {
     return this.articleService.update(params.slug, articleData);
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Delete article' })
   @ApiResponse({ status: 201, description: 'The article has been successfully deleted.'})
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -80,6 +85,7 @@ export class ArticleController {
     return this.articleService.delete(params.slug);
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Create comment' })
   @ApiResponse({ status: 201, description: 'The comment has been successfully created.'})
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -88,6 +94,7 @@ export class ArticleController {
     return await this.articleService.addComment(slug, commentData);
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Delete comment' })
   @ApiResponse({ status: 201, description: 'The article has been successfully deleted.'})
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -97,6 +104,7 @@ export class ArticleController {
     return await this.articleService.deleteComment(slug, id);
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Favorite article' })
   @ApiResponse({ status: 201, description: 'The article has been successfully favorited.'})
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -105,6 +113,7 @@ export class ArticleController {
     return await this.articleService.favorite(userId, slug);
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Unfavorite article' })
   @ApiResponse({ status: 201, description: 'The article has been successfully unfavorited.'})
   @ApiResponse({ status: 403, description: 'Forbidden.' })

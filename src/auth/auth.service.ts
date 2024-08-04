@@ -3,10 +3,14 @@ import { UserService } from 'src/user/user.service';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRO } from 'src/user/user.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService
+  ) {}
 
   async signIn(email: string, pass: string): Promise<any> {
     const user = await this.userService.findOne(email);
